@@ -380,6 +380,84 @@ ul {
 }
 
 /* --------------------------------------------------------------------------
+   Motion (CSS + vanilla JS — no GSAP)
+   -------------------------------------------------------------------------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stripeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__stripe {
+    animation: stripeIn 0.85s var(--ease) 0.12s both;
+  }
+
+  .hero__copy .eyebrow,
+  .hero__copy h1,
+  .hero__copy .hero__lede,
+  .hero__copy .hero__actions {
+    animation: rise 0.75s var(--ease) both;
+  }
+
+  .hero__copy .eyebrow {
+    animation-delay: 0.18s;
+  }
+  .hero__copy h1 {
+    animation-delay: 0.32s;
+  }
+  .hero__copy .hero__lede {
+    animation-delay: 0.46s;
+  }
+  .hero__copy .hero__actions {
+    animation-delay: 0.58s;
+  }
+
+  .hero__shot--tall,
+  .hero__stack {
+    animation: rise 0.85s var(--ease) both;
+  }
+
+  .hero__shot--tall {
+    animation-delay: 0.42s;
+  }
+
+  .hero__stack {
+    animation-delay: 0.52s;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.65s var(--ease) var(--reveal-delay, 0s),
+      transform 0.65s var(--ease) var(--reveal-delay, 0s);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Hero
    -------------------------------------------------------------------------- */
 

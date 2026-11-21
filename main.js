@@ -144,4 +144,87 @@
     });
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Scroll reveals & hero 100+ counter (no GSAP)                       */
+  /* ------------------------------------------------------------------ */
+  const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const revealSelectors = [
+    ".about__copy",
+    ".compare",
+    ".pillar",
+    ".service",
+    ".work__intro",
+    ".work__item",
+    ".logo-grid li",
+    ".testimonial",
+    ".faq__intro",
+    ".faq__list details",
+    ".quote__copy",
+    ".quote-form",
+    ".footer__about",
+    ".footer__col",
+  ].join(",");
+
+  const revealTargets = $$(revealSelectors);
+
+  if (!motionOk) {
+    revealTargets.forEach((el) => el.classList.add("is-visible"));
+  } else if (revealTargets.length) {
+    revealTargets.forEach((el, index) => {
+      el.classList.add("reveal");
+      if (el.matches(".work__item, .service, .pillar")) {
+        const offset = el.classList.contains("work__item") ? index % 8 : index % 3;
+        el.style.setProperty("--reveal-delay", `${offset * 0.07}s`);
+      }
+    });
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.12 }
+    );
+
+    revealTargets.forEach((el) => revealObserver.observe(el));
+  }
+
+  const badgeNum = $(".hero__badge-num");
+  if (badgeNum && motionOk) {
+    const target = 100;
+    let counted = false;
+
+    const runCounter = () => {
+      if (counted) return;
+      counted = true;
+      const start = performance.now();
+      const duration = 1500;
+
+      const step = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - (1 - progress) ** 3;
+        badgeNum.textContent = `${Math.round(eased * target)}+`;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    const counterObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          runCounter();
+          counterObserver.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    counterObserver.observe(badgeNum);
+  }
+
 })();
