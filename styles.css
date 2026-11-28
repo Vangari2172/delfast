@@ -121,8 +121,11 @@ ul {
   color: var(--cerulean-bright);
 }
 
+/* Was 38rem (608px), which wrapped both ledes. The longest measures 756px,
+   so 52rem keeps them on one line with headroom for font fallback, while still
+   capping the measure. Narrow viewports wrap normally via the container. */
 .section-lede {
-  max-width: 38rem;
+  max-width: 52rem;
   color: var(--muted);
   margin-bottom: 2rem;
 }
@@ -194,12 +197,12 @@ ul {
 }
 
 .btn--primary {
-  background: var(--navy);
+  background: var(--navy-mid);
   color: var(--white);
 }
 
 .btn--primary:hover {
-  background: var(--navy-mid);
+  background: var(--navy-soft);
   box-shadow: 0 10px 24px rgba(11, 30, 41, 0.18);
 }
 
@@ -808,12 +811,39 @@ ul {
 }
 
 /* --------------------------------------------------------------------------
+   Section divider
+   -------------------------------------------------------------------------- */
+
+.section-divider {
+  position: relative;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--line);
+  /* UA stylesheet sets overflow:hidden on hr, which would clip the ::before tick. */
+  overflow: visible;
+}
+
+/* Short cerulean tick on the left, echoing the hero stripe and eyebrows,
+   so the rule reads as a section break rather than another .service row. */
+.section-divider::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 84px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--cerulean);
+}
+
+/* --------------------------------------------------------------------------
    Work gallery
    -------------------------------------------------------------------------- */
 
 .work {
   padding: clamp(4rem, 8vw, 5.5rem) 0;
-  background: var(--white);
+  background: var(--fog);
 }
 
 .work__intro {
@@ -874,16 +904,15 @@ ul {
 }
 
 /* --------------------------------------------------------------------------
-   Brands / clients
+   Brands
    -------------------------------------------------------------------------- */
 
-.brands,
-.clients {
-  padding: 0 0 clamp(3.5rem, 7vw, 5rem);
-}
-
-.clients {
-  padding-bottom: clamp(4rem, 8vw, 5.5rem);
+/* .work carries its own background, so its bottom padding does not read as
+   shared whitespace. Brands owns its top padding to clear that band edge.
+   The bottom value carries the old .clients spacing, since brands is now the
+   last white section before the FAQ band. */
+.brands {
+  padding: clamp(3.5rem, 7vw, 5rem) 0 clamp(4rem, 8vw, 5.5rem);
 }
 
 .logo-grid {
@@ -893,9 +922,6 @@ ul {
 
 .logo-grid--4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.logo-grid--3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .logo-grid li {
@@ -925,27 +951,6 @@ ul {
   transform: translateY(-2px);
 }
 
-.testimonial {
-  margin: 3.5rem auto 0;
-  max-width: 40rem;
-  text-align: center;
-}
-
-.testimonial p {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
-  font-weight: 600;
-  line-height: 1.45;
-  color: var(--navy);
-  margin-bottom: 1rem;
-}
-
-.testimonial footer {
-  font-weight: 700;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
 /* --------------------------------------------------------------------------
    FAQ
    -------------------------------------------------------------------------- */
@@ -965,9 +970,13 @@ ul {
 .faq__intro h2 {
   max-width: 10ch;
   margin-bottom: 1rem;
+  color: var(--navy-soft);
 }
 
-.faq__intro p {
+/* :not(.eyebrow) matters here. This rule is (0,1,1) and .eyebrow is only
+   (0,1,0), so without it the eyebrow loses its cerulean colour and its
+   0.85rem bottom margin to this rule. */
+.faq__intro p:not(.eyebrow) {
   color: var(--muted);
   max-width: 28rem;
   margin-bottom: 1.5rem;
@@ -1068,7 +1077,9 @@ ul {
   margin-bottom: 1rem;
 }
 
-.quote__copy > p {
+/* Same specificity trap as .faq__intro p — this was overriding
+   .eyebrow--on-dark and painting the eyebrow translucent white. */
+.quote__copy > p:not(.eyebrow) {
   color: rgba(255, 255, 255, 0.75);
   max-width: 28rem;
   margin-bottom: 1.75rem;
@@ -1162,18 +1173,33 @@ ul {
   color: rgba(255, 255, 255, 0.35);
 }
 
+/* The "* Required" note used to sit on the left here, so space-between put the
+   button on the right. With the note gone, flex-end keeps the button in place. */
 .quote-form__footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
-.quote-form__note {
-  margin: 0;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.5);
+/* Validation errors. Hidden until JS fills in a message, so the layout does not
+   reserve space for errors that are not there. */
+.field__error {
+  display: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #ffb4b4;
+}
+
+.field.has-error .field__error {
+  display: block;
+}
+
+.field.has-error input,
+.field.has-error textarea {
+  border-bottom-color: #ff8787;
 }
 
 /* --------------------------------------------------------------------------
@@ -1204,7 +1230,10 @@ ul {
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
+  /* Inherited 700 reads light at 12px in muted grey, so 800 plus the darker
+     ink gives these headings the weight the rest of the footer expects. */
+  font-weight: 800;
+  color: var(--navy);
   margin-bottom: 1rem;
 }
 
@@ -1224,15 +1253,46 @@ ul {
 
 .footer__contact li {
   display: grid;
-  grid-template-columns: 1.4rem 1fr;
-  gap: 0.55rem;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.6rem;
+  /* start, not center: on the multi-line address the icon must sit against the
+     first line rather than float to the middle of the block. */
+  align-items: start;
   color: var(--muted);
   font-size: 0.95rem;
 }
 
 .footer__icon {
-  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  /* One text line tall (0.95rem x 1.65 line-height) so the icon centres on the
+     first line. Fixed in rem, not em: em would resolve against each variant's
+     own font-size and the smaller text label would get a shorter box. */
+  height: 1.57rem;
+  color: var(--cerulean);
   font-style: normal;
+}
+
+/* The GSTIN marker is a text label rather than a glyph, so it needs the
+   display face at a size that still fits the 1.5rem icon column. */
+.footer__icon--text {
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.footer__phones {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.footer__sep {
+  color: var(--line);
 }
 
 .footer__bar {
@@ -1438,10 +1498,6 @@ ul {
     max-width: none;
   }
 
-  .logo-grid--3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .compare__head,
   .compare__row {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.05fr);
@@ -1599,10 +1655,6 @@ ul {
     font-size: 0.82rem;
   }
 
-  .testimonial {
-    margin-top: 2.25rem;
-  }
-
   .accordion__item p {
     padding-right: 0;
   }
@@ -1639,10 +1691,6 @@ ul {
   }
 
   .services__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .logo-grid--3 {
     grid-template-columns: 1fr;
   }
 
